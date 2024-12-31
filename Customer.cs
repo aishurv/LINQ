@@ -10,7 +10,7 @@ namespace LINQ
     public  class Customer
     {
         public required string CustomerID { get; set; }
-        public string CustomerName { get; set; };
+        public string CustomerName { get; set; }
         public string CustomerCity { get; set; }
         public string CustomerCountry { get; set; }
 

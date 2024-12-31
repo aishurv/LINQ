@@ -12,13 +12,18 @@ namespace LINQ
     {
         public static void WriteToCSV(List<Customer> CustomersData,String filePath)
         {
+            
             var writer = new StreamWriter(filePath);
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 // Write the header row and data
-                csv.WriteRecords(CustomersData);
+                if (CustomersData.Any())
+                    csv.WriteRecords(CustomersData);
+                else
+                    csv.WriteRecords("No Result Found !");
             }
-            Console.WriteLine($"{filePath} file written successfully!");
+            
+            Console.WriteLine($" file written successfully!");
         }
     }
 }
