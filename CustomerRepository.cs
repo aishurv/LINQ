@@ -14,18 +14,13 @@ namespace LINQ
     {        
         public static List<Customer> ReadData(string filePath )
         {
-            List <Customer> customers = new List<Customer>();
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                HeaderValidated = null // Disables header validation
-            };
+            List <Customer> customers;
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture);
+           
             var reader = new StreamReader(filePath);
             var csv = new CsvReader(reader, config);
-            var records = csv.GetRecords<Customer>();
-            foreach (var customer in records)
-            {
-                customers.Add(customer);
-            }
+
+            customers = csv.GetRecords<Customer>().ToList();
             return customers;
         }
     }

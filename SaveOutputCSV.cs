@@ -17,7 +17,7 @@ namespace LINQ
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 // Write the header row and data
-                if (CustomersData.Any())
+                if (CustomersData.Count!=0)
                     csv.WriteRecords(CustomersData);
                 else
                     csv.WriteRecords("No Result Found !");
