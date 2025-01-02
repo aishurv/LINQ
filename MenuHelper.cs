@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Serilog;
 
 namespace LINQ
 {
-    internal class MenuHelper
+    internal static class MenuHelper
     {
-        public static void Menu(List<Customer> customers)
-        {
-            List<string> ValidFindAttributes = new List<string>
-            {
+        public static List<string> ValidFindAttributes = 
+            [
                 "CustomerID",
                 "CustomerName",
                 "CustomerCity",
@@ -19,8 +18,10 @@ namespace LINQ
                 "CustomerCompany",
                 "CustomerPhone",
                 "CustomerEmail"
-            };
-            string outputfilePath = "../../../ExpectedOutputData/";
+            ];
+        public static void Menu(List<Customer> customers)
+        {
+            
             //StartOfMainMenu:       
             int choice = GetOperationToPerform();
             switch (choice)
@@ -31,11 +32,9 @@ namespace LINQ
                     var value = Console.ReadLine();
                     var ExpectedCustomers = Queries.Find(customers, attribute, value ?? string.Empty);
 
-                    System.Console.WriteLine("Enter the file name to save result : ");
-                    var filename = Console.ReadLine();
-                    outputfilePath += filename;
-                    outputfilePath += ".csv";
+                    string outputfilePath = SaveOutputCSV.getPathFromConsole();
                     SaveOutputCSV.WriteToCSV(ExpectedCustomers, outputfilePath);
+
                     break;
                 default:
                     Console.WriteLine("Thank You !");
@@ -56,7 +55,7 @@ namespace LINQ
                 return inputAttribute;
             }
             if (inputAttribute == "EXIT")
-                Environment.Exit(0);
+                MenuHelper.ExitApplication();
             System.Console.WriteLine("Enter Valid Choice Press EXIT To exit !");
             return GetAttribute(attributes);
         }
@@ -70,13 +69,18 @@ namespace LINQ
             if (int.TryParse(choice, out int ichoice))
             {
                 if (ichoice == 0)
-                    Environment.Exit(0);
+                    MenuHelper.ExitApplication();
                 else
                     return ichoice;
             }
             System.Console.WriteLine("Enter Valid Choice Press 0 To exit !");
 
             return GetOperationToPerform();
+        }
+        public static void ExitApplication()
+        {
+            Log.Warning("User Want to Exit !");
+            Environment.Exit(0);
         }
     }
 }
