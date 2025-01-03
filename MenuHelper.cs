@@ -19,6 +19,16 @@ namespace LINQ
                 "CustomerPhone",
                 "CustomerEmail"
             ];
+        public static List<string> ValidSortAttributes =
+            [
+                "CustomerID",
+                "CustomerName",
+                "CustomerCity",
+                "CustomerCountry",
+                "CustomerCompany",
+                "CustomerPhone",
+                "CustomerEmail"
+            ];
         public static void Menu(List<Customer> customers)
         {
             
@@ -33,6 +43,19 @@ namespace LINQ
                     var ExpectedCustomers = Queries.Find(customers, attribute, value ?? string.Empty);
 
                     string outputfilePath = SaveOutputCSV.getPathFromConsole();
+                    SaveOutputCSV.WriteToCSV(ExpectedCustomers, outputfilePath);
+
+                    break;
+                case 2:
+                    attribute = GetAttribute(ValidSortAttributes);
+                    System.Console.WriteLine("Enter Ascending or descending order: ");
+                    var order = Console.ReadLine();
+                    order = order ?? "ascending";
+                    bool isAscending = true;
+                    isAscending = order[0]=='D'||order[0]=='d'?false:true;
+                    ExpectedCustomers = Queries.SortCustomers(customers, attribute, isAscending);
+
+                    outputfilePath = SaveOutputCSV.getPathFromConsole();
                     SaveOutputCSV.WriteToCSV(ExpectedCustomers, outputfilePath);
 
                     break;
@@ -80,6 +103,7 @@ namespace LINQ
         public static void ExitApplication()
         {
             Log.Warning("User Want to Exit !");
+            Logger.LogClose();
             Environment.Exit(0);
         }
     }

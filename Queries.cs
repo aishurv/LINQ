@@ -10,19 +10,26 @@ namespace LINQ
     {
         public static List<Customer> Find(List<Customer> customers , string attributeName , string attributeValue)
         {
-            Log.Information($"Find {nameof(attributeValue)} of {nameof(attributeName)}");
+            Log.Information($"Find {attributeValue} of {attributeName}");
+#nullable disable
+            var property = typeof(Customer).GetProperty(attributeName);
+            
             var matchedCustomers = customers.Where(c =>
             {
-                var property = typeof(Customer).GetProperty(attributeName);
-                if (property != null)
-                {
-                    // Get the value of the property for the customer object
-                    var value = property.GetValue(c)?.ToString();
-                    return value != null && value.Equals(attributeValue, StringComparison.OrdinalIgnoreCase);
-                }
-                return false;
+                var value = property.GetValue(c)?.ToString();
+                return !string.IsNullOrEmpty(value) &&
+                       !string.IsNullOrEmpty(attributeValue) &&
+                       value.Equals(attributeValue, StringComparison.OrdinalIgnoreCase);
             }).ToList();
             return matchedCustomers;
         }
+        public static List<Customer> SortCustomers(List<Customer> customers, string attributeName, bool ascending = true)
+        {
+            var property = typeof(Customer).GetProperty(attributeName);            
+            return ascending
+                ? customers.OrderBy(c => property.GetValue(c, null)).ToList()
+                : customers.OrderByDescending(c => property.GetValue(c, null)).ToList();
+        }
+
     }
 }

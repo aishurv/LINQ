@@ -22,11 +22,14 @@ namespace LINQ
             List<Customer> customers = CustomerRepository.ReadData(inputfilePath);
 
             //MenuHelper.Menu(customers);
-            HandsOnLINQ.findAllAttributeWith0thValue(customers);
 
+            //HandsOnLINQ.findAllAttributeWith0thValue(customers);
+            HandsOnLINQ.SortByAllAttributes(customers,true);
+            HandsOnLINQ.SortByAllAttributes(customers, false);
             //SaveOutputCSV.WriteToCSV(customers, outputfilePath);
             Logger.LogClose(); // Log.CloseAndFlush();
         }
+
         public static void findAllAttributeWith0thValue(List<Customer> customers)
         {
             if (customers == null || customers.Count == 0)
@@ -44,7 +47,6 @@ namespace LINQ
                     var value = property.GetValue(customer);
 #nullable disable
                     string search = value != null ? value.ToString().Trim() : string.Empty;
-                    Console.WriteLine($"Attribute: {attr}, Value: {value}");
                     var ExpectedCustomers = Queries.Find(customers, attr, search);
 
                     string outputfilePath = SaveOutputCSV.getPathFromString($"{attr}_{search}");
@@ -56,5 +58,22 @@ namespace LINQ
                 }
             }
         }
+
+        public static void SortByAllAttributes(List<Customer> customers,bool isAscending)
+        {
+            if (customers == null || customers.Count == 0)
+            {
+                Log.Information("The customer list is empty or null.");
+                return;
+            }
+            foreach (var attr in MenuHelper.ValidSortAttributes)
+            {
+                var ExpectedCustomers = Queries.SortCustomers(customers, attr, isAscending);
+                string outputfilePath = SaveOutputCSV.getPathFromString($"{attr}_Sort_{isAscending}");
+                SaveOutputCSV.WriteToCSV(ExpectedCustomers, outputfilePath);
+            }
+        }
+
+
     }
 } 
