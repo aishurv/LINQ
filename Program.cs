@@ -1,86 +1,94 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using CsvHelper;
+using Serilog;
+
 namespace LINQ
 {
     public class HandsOnLINQ
     {
         public static void Main ()
         {
-            string inputfilePath = "../../../CustomerData.csv";//"CustomerData.csv" ;
-            string outputfilePath = "../../../OutputCustomerData.csv";
+            Logger.LogInitializer(); // Logger initialization 
+
+            Log.Information("Program Started !");
+
+            string inputfilePath = "../../../CustomerData.csv";
+
+            //string outputfilePath = "../../../OutputCustomerData.csv";
 
             List<Customer> customers = CustomerRepository.ReadData(inputfilePath);
-            HandsOnLINQ.Menu(customers);
 
+            //MenuHelper.Menu(customers);
 
+            //HandsOnLINQ.findAllAttributeWith0thValue(customers);
+            //HandsOnLINQ.SortByAllAttributes(customers,true);
+            //HandsOnLINQ.SortByAllAttributes(customers, false);
             //SaveOutputCSV.WriteToCSV(customers, outputfilePath);
-
+            HandsOnLINQ.GroupByAllAttributes(customers);
+            Logger.LogClose(); // Log.CloseAndFlush();
         }
-        public static void Menu(List<Customer> customers)
-        {
-            List<string> ValidFindAttributes = new List<string>
-            {
-                "CustomerID",
-                "CustomerName",
-                "CustomerCity",
-                "CustomerCountry",
-                "CustomerCompany",
-                "CustomerPhone",
-                "CustomerEmail"
-            };
-            string outputfilePath = "../../../ExpectedOutputData/";
-            //StartOfMainMenu:       
-            int choice = GetOperationToPerform();
-            switch (choice)
-            {
-                case 1:
-                    string attribute = GetAttribute(ValidFindAttributes);
-                    System.Console.WriteLine("Enter Value to Search : ");
-                    var value = Console.ReadLine();
-                    var ExpectedCustomers = Queries.Find(customers, attribute, value?? string.Empty);
 
-                    System.Console.WriteLine("Enter the file name to save result : ");
-                    var filename = Console.ReadLine();
-                    outputfilePath += filename;
-                    outputfilePath += ".csv";
+        public static void findAllAttributeWith0thValue(List<Customer> customers)
+        {
+            if (customers == null || customers.Count == 0)
+            {
+                Log.Information("The customer list is empty or null.");
+                return;
+            }
+
+            var customer = customers[0];
+            foreach (var attr in MenuHelper.ValidFindAttributes)
+            {
+                var property = customer.GetType().GetProperty(attr);
+                if (property != null)
+                {
+                    var value = property.GetValue(customer);
+#nullable disable
+                    string search = value != null ? value.ToString().Trim() : string.Empty;
+                    var ExpectedCustomers = Queries.Find(customers, attr, search);
+
+                    string outputfilePath = SaveOutputCSV.getPathFromString($"{attr}_{search}");
                     SaveOutputCSV.WriteToCSV(ExpectedCustomers, outputfilePath);
-                    break;
-                default:
-                    Console.WriteLine("Thank You !");
-                    break;
+                }
+                else
+                {
+                    Console.WriteLine($"Attribute '{attr}' does not exist in the Customer class.");
+                }
             }
+        }
 
-        }
-        public static string GetAttribute(List<string> attributes)
+        public static void SortByAllAttributes(List<Customer> customers,bool isAscending)
         {
-            foreach (string attribute in attributes)
+            if (customers == null || customers.Count == 0)
             {
-                Console.WriteLine(attribute);
+                Log.Information("The customer list is empty or null.");
+                return;
             }
-            System.Console.WriteLine("Enter Atribute to find (From Above Choice): ");
-            string inputAttribute = Console.ReadLine();
-            if (attributes.Any(attr => attr.Equals(inputAttribute, StringComparison.OrdinalIgnoreCase)))
+            foreach (var attr in MenuHelper.ValidSortAttributes)
             {
-                return inputAttribute?? attributes[0];
+                var ExpectedCustomers = Queries.SortCustomers(customers, attr, isAscending);
+                string outputfilePath = SaveOutputCSV.getPathFromString($"{attr}_Sort_{isAscending}");
+                SaveOutputCSV.WriteToCSV(ExpectedCustomers, outputfilePath);
             }
-            System.Console.WriteLine("Enter Valid Choice Press EXIT To exit !");
-            return GetAttribute(attributes);
         }
-        public static int GetOperationToPerform()
+
+        public static void GroupByAllAttributes(List<Customer> customers)
         {
-            System.Console.WriteLine("Find :    1 ");
-            System.Console.WriteLine("Sort :    2 ");
-            System.Console.WriteLine("Group :   3 ");
-            System.Console.WriteLine("Enter Operation (From Above Choice): ");
-            string choice = Console.ReadLine();
-            if (int.TryParse(choice, out int ichoice))
+            if (customers == null || customers.Count == 0)
             {
-                return ichoice;
+                Log.Information("The customer list is empty or null.");
+                return;
             }
-            System.Console.WriteLine("Enter Valid Choice Press 0 To exit !");
-            return GetOperationToPerform();
+            foreach (var attr in MenuHelper.ValidGroupAttributes)
+            {
+                var ExpectedGrpCustomers = Queries.GroupByAttribute(customers, attr);
+                string outputfilePath = SaveOutputCSV.getPathFromString($"{attr}_Group");
+                SaveOutputCSV.SaveGroupedDataToCSVDynamic(ExpectedGrpCustomers, outputfilePath);
+            }
         }
+
     }
 } 
