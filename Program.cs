@@ -7,9 +7,9 @@ using Serilog;
 
 namespace LINQ
 {
-    public class HandsOnLINQ
+    public class Program
     {
-        public static void Main ()
+        public static void Main()
         {
             Logger.LogInitializer(); // Logger initialization 
 
@@ -17,19 +17,21 @@ namespace LINQ
 
             string inputfilePath = "../../../CustomerData.csv";
 
-            //string outputfilePath = "../../../OutputCustomerData.csv";
-
             List<Customer> customers = CustomerRepository.ReadData(inputfilePath);
 
-            //MenuHelper.Menu(customers);
+            MenuHelper.Menu(customers);
 
             //HandsOnLINQ.findAllAttributeWith0thValue(customers);
             //HandsOnLINQ.SortByAllAttributes(customers,true);
             //HandsOnLINQ.SortByAllAttributes(customers, false);
-            //SaveOutputCSV.WriteToCSV(customers, outputfilePath);
-            HandsOnLINQ.GroupByAllAttributes(customers);
+            //HandsOnLINQ.GroupByAllAttributes(customers);
+
             Logger.LogClose(); // Log.CloseAndFlush();
         }
+    }
+    public class HandsOnLINQ
+    {
+        
 
         public static void findAllAttributeWith0thValue(List<Customer> customers)
         {
